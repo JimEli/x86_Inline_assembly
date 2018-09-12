@@ -9,6 +9,9 @@
 * Notes:
 *  (1) Little to no error checking/input validation.
 *  (2) Compiled with Eclipse Oxygen GNU GCC 5.3, using C language options.
+*  (3) Compiled/tested with MS Visual Studio 2017 Community (v141), and
+*      Windows SDK version 10.0.17134.0, and Eclipse and MinGW gcc 6.3.0.
+*
 *************************************************************************
 * Change Log:
 *   12/13/2017: Initial release. JME
