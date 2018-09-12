@@ -53,21 +53,19 @@ __inline unsigned int strLen(const char *s) {
 //}
 __inline char *strCpy(char *d, const char *s)
 {
-	char *d_ = d;
-
 	__asm {
-		mov esi, s    ; put address into the source index
-		mov edi, d    ; put address into the destination index
+		mov  esi, s    ; Put addr into the source index.
+		mov  edi, d    ; Put addr into the destination index.
+		push edi       ; Save dest addr.
 	copy:
-		mov al, [esi] ; copy byte at address in esi to al
-		inc esi       ; increment address in esi
-		mov [edi], al ; copy byte in al to address in edi
-		inc edi       ; increment address in edi
-		cmp al, 0     ; see if its an ascii zero
-		jne copy      ; jump back and read next byte if not
+		mov  al, [esi] ; Copy byte at addr in esi to al.
+		inc  esi       ; Increment addr in esi.
+		mov  [edi], al ; Copy byte in al to address in edi.
+		inc  edi       ; Increment addr in edi.
+		cmp  al, 0     ; ASCII zero?
+		jne  copy      ; Jump back and read next byte.
+		pop  eax       ; Return destination addr.
 	}
-
-	return d_;
 }
 
 //char *strcat(char *dst, const char *src) {
@@ -189,40 +187,41 @@ __inline int strCmp(const char *s1, const char *s2)
 //    }
 //    return NULL;
 //  }
-__inline char *strStr(const char *s, const char *target) 
+__inline char *strStr(const char *src, const char *target) 
 {
 	__asm {
-		mov  esi, s
+		mov  esi, src
 		mov  edi, target
-		push esi
-		push edi		; pass target string to strlen
+		push esi		; Save src addr.
+		push edi		; Pass target string to strlen.
 		call strLen
-		add  esp, 4		; clean up stack
+		add  esp, 4		; Clean up stack.
 		push eax
 
-		push esi		; pass s string to strlen
+		push esi		; Pass src string to strlen.
 		call strLen
-		add  esp, 4		; clean up stack
+		add  esp, 4		; Clean up stack.
 
-		pop  ecx		; length of s string
-		cmp  ecx, eax	; compare target to s
-		ja   str2		; jump if target longer than s
+		pop  ecx		; Length of src string.
+		cmp  ecx, eax	; Compare target to src.
+		ja   str2		; Jump if target longer than src.
 
-		cld				; direction up
-		sub  eax, ecx	; subtract target length from s length
-		mov  ebx, eax	; loop counter
-		mov  eax, ecx	; eax == target length
+		cld				; Direction up.
+		sub  eax, ecx	; Subtract target from src length.
+		mov  ebx, eax	; Loop counter.
+		mov  eax, ecx	; eax == target length.
+		xor  eax, eax
 
 	str1:
-		inc eax			; index counter
-		inc esi			; advance to next character in s
+		inc  eax		; Index counter.
+		inc  esi		; Advance to next src char.
 		push esi
 		push edi
 		push ecx
-		rep  cmpsb		; search for target in s at this index
+		rep  cmpsb		; Search for target in src at this index.
 		pop  ecx
-		pop edi
-		pop edi
+		pop  edi
+		pop  esi
 
 		je   str3		; found target
 		dec  ebx		; decrement loop counter
@@ -232,7 +231,7 @@ __inline char *strStr(const char *s, const char *target)
 		xor  eax, eax	; not found, zeroize eax
 
 	str3:
-		pop ecx			; pop start of s string
+		pop ecx			; pop start of src string
 		add  ecx, eax	; add index of target if found
 		mov  eax, ecx	; save return pointer
 	}
@@ -348,7 +347,7 @@ int main(void) {
 	// strstr
 	const char haystack[20] = "ThisAintNoFreeLunch";
 	const char needle[10] = "Free";
-	printf("substring from strstr = %s\n", strstr_(haystack, needle));
+	printf("substring from strstr = %s\n", strStr(haystack, needle));
 }
 
 /*
@@ -500,4 +499,3 @@ void strins_(char *d, const char *s, const size_t n) {
 		);
 }
 */
-
