@@ -9,8 +9,9 @@
 *
 * Notes:
 *  (1) Little to no error checking/input validation.
-*  (2) Compiled with Eclipse Oxygen GNU GCC 5.3, using C language options.
-*  (3) Compiled/tested with MS Visual Studio 2017 Community (v141), and
+*  (2) No optimization.
+*  (3) Compiled with Eclipse Oxygen GNU GCC 5.3, using C language options.
+*  (4) Compiled/tested with MS Visual Studio 2017 Community (v141), and
 *      Windows SDK version 10.0.17134.0, and Eclipse and MinGW gcc 6.3.0.
 *
 *************************************************************************
@@ -56,6 +57,7 @@ __inline char *strCpy(char *d, const char *s)
 		mov  esi, s    ; Put addr into the source index.
 		mov  edi, d    ; Put addr into the destination index.
 		push edi       ; Save dest addr.
+	
 	copy:
 		mov  al, [esi] ; Copy byte at addr in esi to al.
 		inc  esi       ; Increment addr in esi.
@@ -63,6 +65,7 @@ __inline char *strCpy(char *d, const char *s)
 		inc  edi       ; Increment addr in edi.
 		cmp  al, 0     ; ASCII zero?
 		jne  copy      ; Jump back and read next byte.
+			
 		pop  eax       ; Return destination addr.
 	}
 }
@@ -82,6 +85,7 @@ __inline char *strCat(char * d, const char * s)
 		; while (*cp)
 		mov   ecx, s
 		mov   eax, cp
+			
 	cat1:
 		movsx ebx, byte ptr [eax]
 		test  ebx, ebx
@@ -89,6 +93,7 @@ __inline char *strCat(char * d, const char * s)
 		;  cp++
 		inc   eax
 		jmp   cat1
+			
 		; while (*cp++ = *src++)
 	cat2:
 		mov   dl, byte ptr[ecx]
@@ -98,6 +103,7 @@ __inline char *strCat(char * d, const char * s)
 		cmp   dl, 0
 		je    cat3
 		jmp   cat2
+			
 	cat3:
 		mov   eax, d	; return d
 	}
@@ -117,6 +123,7 @@ __inline char *strChr(const char *s, int c)
 		mov  ebx, c		; cl == target.
 		mov  al, 0		; Set to null byte.
 		xor  ecx, ecx		; Zero.
+			
 	schr:
 		mov  cl, byte ptr[edi]	; Get a character.
 		cmp  bl, cl		; Check if character is target.
@@ -124,6 +131,7 @@ __inline char *strChr(const char *s, int c)
 		scasb			; Check if null byte.
 		jnz  schr		; Loop if no match.
 		mov  edi, 0		; Return null.
+			
 	schr_exit:
 		mov eax, edi		; Return results.
 	}
@@ -142,13 +150,16 @@ __inline int strCmp(const char *s1, const char *s2)
 	__asm {
 		mov esi, s1
 		mov edi, s2
+
 		push edi	; determine length of string
 		call strLen
 		add  esp, 4	; clean up stack
+			
 		mov  ebx, eax
 		push esi	; determine length of string
 		call strLen
 		add  esp, 4	; clean up stack
+			
 		cmp  eax, ebx	; compare lengths
 		ja   greater	; first string is longer
 		jb   less	; second string is longer
@@ -158,13 +169,15 @@ __inline int strCmp(const char *s1, const char *s2)
 		jl   less	; second string is greater
 		mov  r, 0	; strings are equal
 		jmp  strcmp_exit
-		greater:
+	
+	greater:
 		mov  r, 1
 		jmp  strcmp_exit
-		less:
+	
+	less:
 		mov  r, -1
-		jmp  strcmp_exit
-		strcmp_exit:
+	
+	strcmp_exit:
 	}
 
 	return r;
@@ -191,6 +204,7 @@ __inline char *strStr(const char *s, const char *target)
 		mov  esi, s
 		mov  edi, target
 		push esi	; Save src addr.
+			
 		push edi	; Pass target string to strlen.
 		call strLen
 		add  esp, 4	; Clean up stack.
@@ -262,6 +276,7 @@ __inline char* strnCpy(char *d, const char *s, size_t n) {
 		mov   eax, s
 		mov   ebx, cd
 		mov   ecx, n
+			
 		; while (n > 0 && *src != '\0') 
 	snc1:
 		cmp   ecx, 0
@@ -269,23 +284,29 @@ __inline char* strnCpy(char *d, const char *s, size_t n) {
 		movzx edx, byte ptr[eax]
 		test  edx, edx
 		je    snc2
+			
 		;	 *s++ = *src++;
 		mov   byte ptr[ebx], dl
 		add   ebx, 1
 		add   eax, 1
+			
 		;	--n;
 		sub   ecx, 1
 		jmp   snc1
+			
 		; while (n > 0) 
 	snc2:
 		cmp   ecx, 0
 		jbe   snc_exit
+			
 		;	*s++ = '\0';
 		mov   byte ptr[ebx], 0
 		add   ebx, 1
+			
 		;	--n;
 		sub   ecx, 1
 		jmp   snc2
+			
 	snc_exit:
 		mov   eax, d
 	}
@@ -395,6 +416,7 @@ __inline void strIns(char *d, const char *s, const size_t n) {
 		push  temp	; Free temp memory.
 		call  free
 		add   esp, 4
+			
 	strins_exit:
 	}
 }
@@ -407,6 +429,7 @@ __inline void strIns(char *d, const char *s, const size_t n) {
 	__asm {
 		xor ecx, ecx	
 		mov esi, s
+			
 	 L1:
 		movzx edx, byte ptr[esi + ecx]
 		cmp dl, 0
@@ -414,14 +437,17 @@ __inline void strIns(char *d, const char *s, const size_t n) {
 		inc ecx
 		push edx
 		jmp L1
+			
 	L2:
 		cmp ecx, 0
 		je L4
+			
 	L3:
 		pop edx
 		mov byte ptr[esi], dl
 		inc esi
 		loop L3
+			
 	L4:
 	}
 
