@@ -5,6 +5,7 @@ Demonstrates C string functions in x86 inline masm and gcc assembly. Each functi
 * Both GNU C and MSVC MASM versions.
 * Little to no error checking/input validation.
 * No optimization.
+* Includes file of public-domain c-language string functions.
 
 Compiled with:
 * Eclipse Oxygen GNU GCC 5.3, using C language options.
