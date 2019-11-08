@@ -1,6 +1,6 @@
 /*************************************************************************
 * Title: inline assembly string functions
-* File: test.c
+* File: gcc_version.c
 * Author: James Eli
 * Date: 12/13/2017
 *
